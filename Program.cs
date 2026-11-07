@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -28,9 +28,13 @@ builder.Services.AddSwaggerGen(options =>
         });
 });
 
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException(
+        "Connection string 'DefaultConnection' is missing.");
+
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite(
-        builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(connectionString, sqlServer =>
+        sqlServer.EnableRetryOnFailure()));
 builder.Services
     .AddIdentityCore<IdentityUser>(options =>
     {

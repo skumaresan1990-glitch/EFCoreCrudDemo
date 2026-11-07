@@ -17,13 +17,20 @@ public class ProductsController : ControllerBase
 
     // CREATE
     [HttpPost]
-    public async Task<IActionResult> Create(Product product)
+    public async Task<IActionResult> Create(CreateProductRequest request)
     {
+        var product = new Product
+        {
+            Name = request.Name,
+            Price = request.Price,
+            Stock = request.Stock
+        };
+
         _context.Products.Add(product);
 
         await _context.SaveChangesAsync();
 
-        return Ok(product);
+        return CreatedAtAction(nameof(GetById), new { id = product.Id }, product);
     }
 
     // READ ALL
